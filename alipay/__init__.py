@@ -14,6 +14,7 @@ from Cryptodome.Signature import PKCS1_v1_5
 
 from .compat import b, decodebytes, encodebytes, quote_plus, urlopen
 from .exceptions import AliPayException, AliPayValidationError
+from .cert import AlipayCert
 
 
 class BaseAliPay(object):
@@ -45,9 +46,12 @@ class BaseAliPay(object):
         app_notify_url,
         app_private_key_path=None,
         app_private_key_string=None,
+        app_public_key_cert_string=None,
         alipay_public_key_path=None,
         alipay_public_key_string=None,
+        alipay_root_cert_string=None,
         sign_type="RSA2",
+        use_cert=False,
         debug=False
     ):
         """
@@ -66,6 +70,13 @@ class BaseAliPay(object):
         self._app_private_key_string = app_private_key_string
         self._alipay_public_key_path = alipay_public_key_path
         self._alipay_public_key_string = alipay_public_key_string
+        self._cert = None
+        if use_cert:
+            self._cert = AlipayCert(
+                app_public_key_cert_string=app_public_key_cert_string,
+                alipay_public_key_cert_string=alipay_public_key_string,
+                alipay_root_cert_string=alipay_root_cert_string
+            )
 
         self._app_private_key = None
         self._alipay_public_key = None
@@ -151,6 +162,10 @@ class BaseAliPay(object):
 
         if return_url is not None:
             data["return_url"] = return_url
+
+        if self._cert:
+            data["alipay_root_cert_sn"] = self._cert.alipay_root_cert_sn
+            data["app_cert_sn"] = self._cert.app_cert_sn
 
         if method in (
             "alipay.trade.app.pay", "alipay.trade.wap.pay", "alipay.trade.page.pay",
