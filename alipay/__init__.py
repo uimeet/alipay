@@ -23,6 +23,10 @@ class BaseAliPay(object):
         return self._appid
 
     @property
+    def pid(self):
+        return self._pid
+
+    @property
     def sign_type(self):
         return self._sign_type
 
@@ -50,6 +54,7 @@ class BaseAliPay(object):
         alipay_public_key_path=None,
         alipay_public_key_string=None,
         alipay_root_cert_string=None,
+        pid=None,
         sign_type="RSA2",
         use_cert=False,
         debug=False
@@ -65,6 +70,7 @@ class BaseAliPay(object):
         )
         """
         self._appid = str(appid)
+        self._pid = pid
         self._app_notify_url = app_notify_url
         self._app_private_key_path = app_private_key_path
         self._app_private_key_string = app_private_key_string
@@ -577,6 +583,24 @@ class BaseAliPay(object):
         raw_string = urlopen(url, timeout=15).read().decode("utf-8")
         return self._verify_and_return_sync_response(
             raw_string, "alipay_data_bill_balance_query_response"
+        )
+
+    def api_alipay_fund_account_query(self):
+        """
+        查询当前商户余额
+        :return:
+        """
+        biz_content = {
+            'alipay_user_id': self.pid,
+            'account_type': 'ACCTRANS_ACCOUNT',
+        }
+
+        data = self.build_body("alipay.data.bill.balance.query", biz_content)
+
+        url = self._gateway + "?" + self.sign_data(data)
+        raw_string = urlopen(url, timeout=15).read().decode("utf-8")
+        return self._verify_and_return_sync_response(
+            raw_string, "alipay_fund_account_query_response"
         )
 
     def _verify_and_return_sync_response(self, raw_string, response_type):
