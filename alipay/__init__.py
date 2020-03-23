@@ -595,7 +595,7 @@ class BaseAliPay(object):
             'account_type': 'ACCTRANS_ACCOUNT',
         }
 
-        data = self.build_body("alipay.data.bill.balance.query", biz_content)
+        data = self.build_body("alipay.fund.account.query", biz_content)
 
         url = self._gateway + "?" + self.sign_data(data)
         raw_string = urlopen(url, timeout=15).read().decode("utf-8")
