@@ -513,6 +513,37 @@ class BaseAliPay(object):
             raw_string, "alipay_trade_fastpay_refund_query_response"
         )
 
+    def api_alipay_fund_trans_uni_transfer(self, out_biz_no, trans_amount, product_code, biz_scene, payee_info, order_title, remark, **kwargs):
+        """
+        单笔转账接口
+        :param out_biz_no:
+        :param trans_amount:
+        :param product_code:
+        :param biz_scene:
+        :param payee_info:
+        :param order_title:
+        :param remark:
+        :return:
+        """
+        biz_content = {
+            'out_biz_no': out_biz_no,
+            'trans_amount': trans_amount,
+            'product_code': product_code,
+            'biz_scene': biz_scene,
+            'order_title': order_title,
+            'payee_info': payee_info,
+            'remark': remark,
+        }
+        biz_content.update(kwargs)
+        data = self.build_body('alipay.fund.trans.uni.transfer', biz_content)
+
+        url = self._gateway + '?' + self.sign_data(data)
+        raw_string = urlopen(url, timeout=15).read().decode('utf-8')
+
+        return self._verify_and_return_sync_response(
+            raw_string, "alipay_fund_trans_uni_transfer_response"
+        )
+
     def api_alipay_fund_trans_toaccount_transfer(
             self, out_biz_no, payee_type, payee_account, amount, **kwargs
     ):
